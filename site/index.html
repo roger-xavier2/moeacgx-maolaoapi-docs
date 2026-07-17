@@ -179,7 +179,9 @@
             <div><code>prompt</code><span>图片描述或编辑指令。</span></div>
             <div>
               <code>n</code
-              ><span>图片数量，默认 1。网关上限 128，渠道可能更低。</span>
+              ><span
+                >请求图片数量，默认 1。网关上限 128，渠道可能部分交付。</span
+              >
             </div>
             <div>
               <code>size</code
@@ -240,6 +242,24 @@
   }
 }</code></pre>
 
+          <div class="callout warning">
+            <div class="callout-icon">!</div>
+            <div>
+              <strong>以实际返回数量判断交付结果</strong>
+              <p>
+                <code>succeeded</code>
+                表示至少交付了一张图片，不保证
+                <code>result.data.length</code> 与请求的
+                <code>n</code> 相等。请求多张图片时，请始终以
+                <code>result.data.length</code> 作为实际交付数量。
+              </p>
+              <p>
+                固定按张计费时按实际可交付数量结算，且不超过请求的
+                <code>n</code>；没有可交付图片时会进入失败、重试或退款流程。
+              </p>
+            </div>
+          </div>
+
           <h3>生成失败</h3>
           <pre data-language="JSON"><code>{
   "task_id": "task_xxx",
@@ -259,7 +279,7 @@
             </div>
             <div>
               <span class="status succeeded"></span><strong>succeeded</strong
-              ><small>图片生成成功</small>
+              ><small>至少交付一张图片</small>
             </div>
             <div>
               <span class="status failed"></span><strong>failed</strong
@@ -278,6 +298,8 @@
           <p>
             如果 <code>result.data[].url</code> 以
             <code>/v1/</code> 开头，请拼接 API 域名，并继续携带 Bearer Token。
+            当上游结果包含 Base64
+            图片内容时，网关会优先返回这种稳定的本站内容地址。
           </p>
 
           <pre
@@ -288,8 +310,8 @@
 
           <p>
             内容接口直接返回图片二进制，支持 PNG、JPEG、WebP、GIF 和
-            AVIF。如果结果是完整的
-            <code>https://</code> 地址，则直接使用上游地址。
+            AVIF。如果上游只返回 URL，结果可能是完整的
+            <code>https://</code> 地址，此时直接使用该上游地址。
           </p>
 
           <div class="callout note">
@@ -497,7 +519,11 @@ console.log(result.data)</code></pre>
             <li>暂不提供完成回调或 Webhook。</li>
             <li>暂不提供公开的任务列表接口。</li>
             <li><code>?group=xxx</code> 不能覆盖 API Key 对应的分组。</li>
-            <li>渠道选择、限流和计费规则与同步图片接口一致。</li>
+            <li>渠道选择和限流规则与同步图片接口一致。</li>
+            <li>
+              固定按张计费以实际可交付数量结算，最多不超过请求的
+              <code>n</code>。
+            </li>
           </ul>
         </section>
 

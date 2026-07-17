@@ -8,6 +8,10 @@ MaolaoAPI 的公开 API 调用文档与示例代码。
 - `GET /v1/images/tasks/{task_id}`：查询任务状态与结果
 - `GET /v1/images/tasks/{task_id}/content/{index}`：获取受保护的图片正文
 
+异步任务请求多张图片时，调用方应以
+`result.data.length` 判断实际交付数量。固定按张计费会按实际可交付数量结算，
+且不超过请求的 `n`；没有可交付图片时进入失败、重试或退款流程。
+
 ## 在线文档
 
 <https://moeacgx.github.io/maolaoapi-docs/>
